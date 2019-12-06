@@ -8,22 +8,24 @@ for (let i in scenes) {
 const config: any = {
   type: Phaser.AUTO,
   backgroundColor: 0x000000,
-  scale: {
-    mode: Phaser.Scale.ENVELOP,
-    parent: 'app',
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 750,
-    height: 1334,
-    min: {
-      width: 750,
-      height: 1334
-    },
-    max: {
-      width: 750,
-      height: 1334
+  parent: 'app',
+  autoCenter: Phaser.Scale.CENTER_BOTH,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scene,
+  pixelArt: true,
+  roundPixel: true,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 0 },
+      debug: true
     }
-  },
-  scene
+  }
 }
 
 window.game = new Phaser.Game(config)
+
+window.addEventListener('resize', (event: any) => {
+  window.game.scale.resize(window.innerWidth, window.innerHeight)
+})
