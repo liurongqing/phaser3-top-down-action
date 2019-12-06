@@ -3,6 +3,7 @@ import Player from '@/sprites/Player'
 import Portal from '@/sprites/Portal'
 import Coins from '@/groups/Coins'
 import Enemies from '@/groups/Enemies'
+import Bullets from '@/groups/Bullets'
 
 export default class Main extends Phaser.Scene {
   map: any
@@ -20,6 +21,7 @@ export default class Main extends Phaser.Scene {
   coinsGroup: any
   enemies: any
   enemiesGroup: any
+  bullets: any
   constructor() {
     super('mainScene')
   }
@@ -29,6 +31,7 @@ export default class Main extends Phaser.Scene {
     this._LEVELS = data.levels
     this._NEWGAME = data.newGame
     this.loadingLevel = false
+    this._NEWGAME && this.events.emit('newGame')
   }
 
   create() {
@@ -46,6 +49,9 @@ export default class Main extends Phaser.Scene {
     this.enemies = this.map.createFromObjects('Enemies', 'Enemy', {})
     this.enemiesGroup = new Enemies(this.physics.world, this, [], this.enemies)
 
+    // 子弹
+    this.bullets = new Bullets(this.physics.world, this, [])
+
     this.addCollisions()
     this.cameras.main.startFollow(this.player)
   }
@@ -55,12 +61,26 @@ export default class Main extends Phaser.Scene {
   }
 
   addCollisions() {
-    this.physics.add.collider(this.player, this.blockedLayer)
+    this.physics.add.collider(
+      [this.player, this.enemiesGroup],
+      this.blockedLayer
+    )
+
+    // 玩家与敌人碰撞
+    this.physics.add.overlap(
+      this.player,
+      this.enemiesGroup,
+      this.player.enemyCollision.bind(this.player)
+    )
+
+    // 玩家与传送门碰撞
     this.physics.add.overlap(
       this.player,
       this.portal,
-      this.loadNextLevel.bind(this)
+      this.loadNextLevel.bind(this, false)
     )
+
+    // 玩家与金币碰撞
     this.physics.add.overlap(
       this.coinsGroup,
       this.player,
@@ -68,11 +88,17 @@ export default class Main extends Phaser.Scene {
     )
   }
 
-  loadNextLevel() {
+  loadNextLevel(endGame?: any) {
     if (!this.loadingLevel) {
       this.cameras.main.fade(500, 0, 0)
       this.cameras.main.on('camerafadeoutcomplete', () => {
-        if (this._LEVEL === 1) {
+        if (endGame) {
+          this.scene.restart({
+            level: 1,
+            levels: this._LEVELS,
+            newGame: true
+          })
+        } else if (this._LEVEL === 1) {
           this.scene.restart({
             level: 2,
             levels: this._LEVELS,
