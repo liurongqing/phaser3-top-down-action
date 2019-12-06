@@ -2,6 +2,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   health: any
   hitDelay: any
   tint: any
+  direction: any
 
   constructor(scene: any, x: any, y: any) {
     super(scene, x, y, 'characters', 325)
@@ -10,19 +11,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.setScale(4)
     this.health = 3
     this.hitDelay = false
+    this.direction = 'up'
   }
 
   update(cursors: any) {
     this.setVelocity(0)
     if (cursors.up.isDown) {
+      this.direction = 'up'
       this.setVelocityY(-150)
     } else if (cursors.down.isDown) {
+      this.direction = 'down'
       this.setVelocityY(150)
     }
 
     if (cursors.left.isDown) {
+      this.direction = 'left'
       this.setVelocityX(-150)
     } else if (cursors.right.isDown) {
+      this.direction = 'right'
       this.setVelocityX(150)
     }
   }

@@ -46,4 +46,20 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
       callbackScope: this
     })
   }
+
+  loseHealth() {
+    this.health--
+    this.tint = 0xff0000
+    if (this.health === 0) {
+      this.timeEvent.destroy()
+      this.destroy()
+    } else {
+      this.scene.time.addEvent({
+        delay: 200,
+        callback: () => {
+          this.tint = 0xffffff
+        }
+      })
+    }
+  }
 }

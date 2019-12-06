@@ -22,6 +22,7 @@ export default class Main extends Phaser.Scene {
   enemies: any
   enemiesGroup: any
   bullets: any
+  spaceKey: any
   constructor() {
     super('mainScene')
   }
@@ -37,6 +38,9 @@ export default class Main extends Phaser.Scene {
   create() {
     this.scale.on('resize', this.resize, this)
     this.cursors = this.input.keyboard.createCursorKeys()
+    this.spaceKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    )
     this.createMap()
     this.createPlayer()
     this.createPortal()
@@ -58,6 +62,13 @@ export default class Main extends Phaser.Scene {
 
   update() {
     this.player.update(this.cursors)
+    if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+      this.bullets.fireBullet(
+        this.player.x,
+        this.player.y,
+        this.player.direction
+      )
+    }
   }
 
   addCollisions() {
@@ -85,6 +96,13 @@ export default class Main extends Phaser.Scene {
       this.coinsGroup,
       this.player,
       this.coinsGroup.collectCoin.bind(this.coinsGroup)
+    )
+
+    // 子弹与敌人碰撞
+    this.physics.add.overlap(
+      this.bullets,
+      this.enemiesGroup,
+      this.bullets.enemyCollision
     )
   }
 
